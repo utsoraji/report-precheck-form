@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h1><?=record.studentName ?> レポート承認</h1>
+    <table>
+      <tr>
+        <td>学生証番号</td>
+        <td><?=record.studentIdNo ?></td>
+      </tr>
+      <tr>
+        <td>氏名</td>
+        <td><?=record.studentName ?></td>
+      </tr>
+      <tr>
+        <td>メールアドレス</td>
+        <td><?=record.studentMail ?></td>
+      </tr>
+      <tr>
+        <td>提出レポート</td>
+        <td><a href="https://drive.google.com/file/d/<?=record.reportFiles[0].id ?>/view?usp=drive_link"><?=record.reportFiles[0].name ?></a></td>
+      </tr>
+      <tr>
+        <td>提出日時</td>
+        <td><?=record.createdAt ?></td>
+      </tr>
+      <tr>
+        <td>連絡欄</td>
+        <td><?=record.note ?></td>
+      </tr>
+      <tr>
+        <td>担当教員</td>
+        <td><?=record.assignedProfessor ?></td>
+      </tr>
+      <tr>
+        <td>承認</td>
+        <td>
+        <? if (approveState === "notyet") { ?>
+          未承認
+        <? } else if (approveState === "accept") { ?>
+          承認
+        <? } else if (approveState === "reject") { ?>
+          否認
+        <? } else { ?>
+          <?=approveState ?>
+        <? } ?>
+        </td>
+      </tr>
+    </table>
+    <hr />
+    <? if (professor && approveState === "notyet") { ?>
+      <form action=<?=actionUrl ?> method="POST" style="display: inline-block;">
+        <input type="hidden" name='id' value=<?=record.responseId ?> />
+        <input type="hidden" name='approval' value="accept" />
+        <input type="submit" value="承認" style="color: #22E;"/>
+      </form>
+      <form action=<?=actionUrl ?> method="POST" style="display: inline-block;">
+        <input type="hidden" name='id' value=<?=record.responseId ?> />
+        <input type="hidden" name='approval' value="reject" />
+        <input type="submit" value="否認" style="color: #E22;" />
+      </form>
+    <? } ?>
+    <? if (professor) { ?>
+    <p>コメントがある場合は Google Drive 上の提出レポート（上記リンク）に付けてください。</p>
+    <? } ?>
+
+
+  </body>
+  <script type="text/javascript">
+var BTN_ACCEPT = document.getElementById('btn_accept');
+
+function accept(responseId, declaration) {
+  google.script.run
+    .withSuccessHandler(function (){alert("成功")})
+    .withFailureHandler(function (){alert("失敗")})
+    .receiveDeclaration(responseId, declaration)
+}
+
+BTN_ACCEPT.addEventListener('click', function(){
+  accept(<?=record.responseId ?>, 'accept')
+})
+  </script>
+</html>
